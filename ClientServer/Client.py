@@ -14,7 +14,7 @@ import socket, sys
 # at IPv4 vs. IPv6, etc.)
 
 
-message = input('Press Enter to Give New Data or quit to Exit -> ')
+message = input('Press Enter to Start or "quit" to Exit -> ')
 data = 'Hello'
 while message != 'quit':
 

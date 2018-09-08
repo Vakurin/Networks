@@ -24,18 +24,11 @@ sock.listen(3)
 # Бесконечный цикл работы программы
 while True:
 
-    # # Если мы захотели выйти из программы
-    # question = input('Do you want to quit? y\\n: ')
-    # if question == 'y':
-    #     break
-
-    print('wait connection...')
+    print('Wait Connection...\n')
     # accept - принимает запрос и устанавливает соединение, (по умолчанию работает в блокирующем режиме)
     # устанавливает новый сокет соединения в переменную conn и адрес клиента в переменную addr
     (conn, addr) = sock.accept()
-    print('client addr: ', addr)
-
-
+    print('Client Address: ', addr[0])
 
     error_num = 0
     # recv - получает сообщение TCP
@@ -45,24 +38,23 @@ while True:
         conn.close()
         break
     else:
-        print(data)
+        print('Original Data:', data)
         replace = ''.join(choice(ascii_uppercase) for i in range(2))
         data_replace = data.replace(data[0:2], replace)
         for item in data:
                 if not item in data_replace:
                     error_num += 1
-                    print(item)
 
         Res = [x for x in data if not x in data_replace]
         print('Data Replace:', data_replace)
-        print('Results:', Res)
+        print('Replaced letters:', Res)
         print("Error Num:", error_num)
         error_accuracy = (error_num / len(data)) * 100
         print('Error Accuracy:', error_accuracy, '%')
-        print('Encode Message:', data_replace.encode())
         # send - передает сообщение TCP
         conn.send(data_replace.encode())
-        #conn.send(str(error_accuracy).encode())
+        conn.close()
+        #
         # close - закрывает сокет
         conn.close()
 
