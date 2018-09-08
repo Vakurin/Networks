@@ -1,11 +1,7 @@
 #Потоковый TCP сокет.
-import socket, time
+import socket, time, sys
 from random import choice, randint
 from string import ascii_uppercase
-
-
-def main():
-    pass
 
 
 #By default we have socket.AF_INET, socket.SOCK_STREAM
@@ -21,23 +17,25 @@ try:
     #Теперь свяжем наш сокет с данными хостом и портом с помощью метода bind, которому передается кортеж
     sock.bind((host, port))
 except socket.error as error:
-    print(str(error))
+    print('Bing failed. Error:', str(error))
+    sys.exit()
 # queue up to 3 requests
-sock.listen(3)
+sock.listen(7)
 # Бесконечный цикл работы программы
 while True:
 
-    # Если мы захотели выйти из программы
-    question = input('Do you want to quit? y\\n: ')
-    if question == 'y':
-        break
+    # # Если мы захотели выйти из программы
+    # question = input('Do you want to quit? y\\n: ')
+    # if question == 'y':
+    #     break
 
     print('wait connection...')
-
     # accept - принимает запрос и устанавливает соединение, (по умолчанию работает в блокирующем режиме)
     # устанавливает новый сокет соединения в переменную conn и адрес клиента в переменную addr
     (conn, addr) = sock.accept()
-    print('client addr: ', addr)
+ #   print('client addr: ', addr)
+
+
 
     error_num = 0
     # recv - получает сообщение TCP
@@ -71,8 +69,6 @@ while True:
 sock.close()
 
 
-if __name__ == '__main__':
-    main()
 
 # #С помощью метода listen мы запустим для данного сокета режим прослушивания. Метод принимает один аргумент — максимальное количество подключений в очереди
 # sock.listen(2)
@@ -83,15 +79,6 @@ if __name__ == '__main__':
 # print('Server Started and Listening')
 # itsatime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 # print("[" + itsatime + "]")
-#
-#
-# data = conn.recv(1024)
-# if not data:
-#     break
-# data_replace = data.replace(data[0:2], x)
-# print('Original:', list(data))
-# print('Replace: ', list(data_replace))
-#
 
 
 
