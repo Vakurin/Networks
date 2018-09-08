@@ -20,7 +20,7 @@ except socket.error as error:
     print('Bing failed. Error:', str(error))
     sys.exit()
 # queue up to 3 requests
-sock.listen(7)
+sock.listen(3)
 # Бесконечный цикл работы программы
 while True:
 
@@ -33,7 +33,7 @@ while True:
     # accept - принимает запрос и устанавливает соединение, (по умолчанию работает в блокирующем режиме)
     # устанавливает новый сокет соединения в переменную conn и адрес клиента в переменную addr
     (conn, addr) = sock.accept()
- #   print('client addr: ', addr)
+    print('client addr: ', addr)
 
 
 
