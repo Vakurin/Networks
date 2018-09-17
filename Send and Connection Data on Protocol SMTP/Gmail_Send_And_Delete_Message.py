@@ -21,29 +21,29 @@ import poplib
 # =============================================================================
 # SET EMAIL LOGIN REQUIREMENTS
 # =============================================================================
-GMAIL_USER = 'name@gmail.com'
-GMAIL_APP_PASSWORD = 'password_app'
-GMAIL_IMAP_SERVER = 'imap.gmail.com'
-GMAIL_SMTP_PORT = 465
-GMAIL_IMAP_PORT = 993
+GMAIL_USER         = 'name@gmail.com'
+GMAIL_APP_PASSWORD = 'gmail_app_password'
+GMAIL_IMAP_SERVER  = 'imap.gmail.com'
+GMAIL_SMTP_PORT    = 465
+GMAIL_IMAP_PORT    = 993
 
-GMAIL_FOLDER_NAME = '"[Gmail]/Sent Mail"'
+GMAIL_FOLDER_NAME  = '"[Gmail]/Sent Mail"'
 
-sent_from = GMAIL_USER
-sent_to = 'name_sent@gmail.com'
+SENT_FROM          = GMAIL_USER
+SENT_TO            = 'sent_to@gmail.com'
 
 # =============================================================================
 # SET THE INFO ABOUT THE SAID EMAIL
 # =============================================================================
 
-def message_struct(sent_from, sent_to):
+def message_struct(sent_from, sent_to, subject):
     msg = "\r\n".join([
       "From: {}",
       "To: {}",
-      "Subject: Just a message",
+      "Subject: {}",
       "dfghjkl",
       "Why, oh why"
-      ]).format(sent_from, sent_to)
+      ]).format(sent_from, sent_to, subject)
     return msg
 
 # =============================================================================
@@ -60,48 +60,65 @@ def connect_for_delete(email_imap, port, email, password_app):
     connect.login(email, password_app)
     return connect
 
-try:
-    server_to_send = connect_to_send(GMAIL_IMAP_SERVER,
-                     GMAIL_SMTP_PORT,
-                     GMAIL_USER,
-                     GMAIL_APP_PASSWORD)
-    msg = message_struct(sent_from=sent_from, sent_to=sent_to)
-    server_to_send.sendmail(sent_from, sent_to, msg)
-    print('Message Sent!')
-    #server_to_send.close()
-except Exception as exception:
-    print("Error: %s!\n\n" % exception)
 
 
-try:
-    server = connect_for_delete(GMAIL_IMAP_SERVER,
-                     GMAIL_IMAP_PORT,
-                     GMAIL_USER,
-                     GMAIL_APP_PASSWORD)
-    #server.sendmail(sent_from, sent_to, msg)
-    # get list of mailboxes
-    mailparser = HeaderParser()
-    list = server.list();
-    server.select(GMAIL_FOLDER_NAME)
-    typ, data = server.search(None, 'ALL')
-    uids = data[0].split()
-    for num in uids:
-        try:
-            resp, data_second = server.fetch(num, '(RFC822)')
-            data_decode = data_second[0][1].decode()
-            msg = mailparser.parsestr(data_decode)
-            print (msg['From'],'========',msg['Date'],'====',msg['Subject'])
-            if msg['Subject'] == 'Just a message':
-                server.store(num, '+FLAGS', '\\Deleted')
-                print ('Deleted\n\n')
-        except Exception as exception:
+def message_send(subject):
+    try:
+        server_to_send = connect_to_send(GMAIL_IMAP_SERVER,
+                         GMAIL_SMTP_PORT,
+                         GMAIL_USER,
+                         GMAIL_APP_PASSWORD)
+        msg = message_struct(SENT_FROM, SENT_TO, subject)
+        print('Subject message:', subject)
+        server_to_send.sendmail(SENT_FROM, SENT_TO, msg)
+        print('Message Sent!')
+        server_to_send.close()
+    except Exception as exception:
+        print("Error: %s!\n\n" % exception)
 
-            print ("Error: %s!" % exception)
-            print ('Id:', num)
-    server.expunge()
-    print('Count:',len(uids))
+def message_delete(subject_message = None):
+    try:
+        server = connect_for_delete(GMAIL_IMAP_SERVER,
+                         GMAIL_IMAP_PORT,
+                         GMAIL_USER,
+                         GMAIL_APP_PASSWORD)
+        # get list of mailboxes
+        mailparser = HeaderParser()
+        list = server.list();
+        server.select(GMAIL_FOLDER_NAME)
+        typ, data = server.search(None, 'ALL')
+        uids = data[0].split()
+        for num in uids:
+            try:
+                resp, data_second = server.fetch(num, '(RFC822)')
+                data_decode = data_second[0][1].decode()
+                msg = mailparser.parsestr(data_decode)
+                print('\nMessage №', num.decode())
+                print ('From:',    msg['From'],
+                       '\nDate:',    msg['Date'],
+                       '\nSubject:', msg['Subject'])
+                if msg['Subject'] == subject_message:
+                        server.store(num, '+FLAGS', '\\Deleted')
+                        print ('_________Deleted Message_________\n')
+            except Exception as exception:
+                print ("Error: %s!" % exception)
+                print ('Id:', num)
+        server.expunge()
+        server.close()
+        print()
 
-except Exception as exception:
-    print("Error: %s!\n\n" % exception)
+    except Exception as exception:
+        print("Error: %s!\n\n" % exception)
 
-server.close()
+
+if __name__ == "__main__":
+    message = input('\nSend message: ')
+    if message == 'Yes':
+        message_send('Hello Max!')
+    watch_message = input('\nWatch all messages: ')
+    if watch_message == 'Yes':
+        message_delete()
+        delete = input('\nDelete message: ')
+        if delete == 'Yes':
+            subject_messge_to_delete = input('\nSubject Message To Delete: ')
+            message_delete(subject_messge_to_delete)
